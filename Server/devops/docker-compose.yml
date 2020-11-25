@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+
+    miedu_gde_node:
+        image: miedu_gde_node_dev
+        build: ../
+        volumes:
+            - ../:/var/www/node
+        ports:
+            - 3000:3000
+        environment:
+            - NODE_ENV=development
+            - PORT=3000
+        restart: always
+        networks:
+            - node-network
+
+    miedu_gde_nginx:
+        image: nginx:1.19.2
+        ports:
+            - 8080:8080
+            - 8443:8443
+        volumes:
+            - ../../html/:/var/www/html
+            - ../:/var/www/node
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ./node/node.conf:/etc/nginx/conf.d/node.conf
+            - /etc/letsencrypt/live/:/etc/letsencrypt/
+            - /etc/pki/nginx/:/etc/pki/nginx/
+        restart: always
+        networks:
+            - node-network
+        depends_on:
+            - miedu_gde_node
+
+networks:
+    node-network:
+        driver: bridge
