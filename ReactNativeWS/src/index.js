@@ -18,7 +18,7 @@ import {
 import theme from './config/style';
 
 const App = () => {
-  const [toggle, setToggle] = useState(false);
+  const [enabled, setEnabled] = useState(false);
   const [ws, setWS] = useState(null);
   const [info, setInfo] = useState('Connecting to Server...');
   const [sent, setSent] = useState('');
@@ -30,7 +30,7 @@ const App = () => {
   const init = () => {
     if (ws) {
       ws.onopen = () => {
-        setToggle(true);
+        setEnabled(true);
         setInfo('Connected to Server.')
       };
   
@@ -40,12 +40,12 @@ const App = () => {
   
       ws.onerror = (e) => {
         setInfo(e.message);
-        setToggle(false);
+        setEnabled(false);
       };
   
       ws.onclose = (e) => {
         setInfo(e.code +' '+ e.reason);
-        setToggle(false);
+        setEnabled(false);
       };
 
       return;
@@ -68,21 +68,21 @@ const App = () => {
   let DATA = [
     {
       title: 'Connection',
-      data: [toggle+'']
+      data: [enabled ? 'Connected' : 'Disconnected']
     },
     {
       title: 'Received Data',
-      data: [info+'']
+      data: ['' + info]
     },
     {
       title: 'Sent Data',
-      data: [sent+'']
+      data: [sent ? sent : '[ No data ]']
     },
   ];
 
   const Item = ({ title }) => (
-    <View style={{backgroundColor: theme.dark.backgroundAlt}}>
-      <Text style={{color: theme.dark.text, fontSize: 16}}>{title}</Text>
+    <View style={{backgroundColor: theme.dark.backgroundAlt, margin: 10}}>
+      <Text style={{color: theme.dark.text, fontSize: 16, marginLeft: 10}}>{title}</Text>
     </View>
   );
 
@@ -90,21 +90,22 @@ const App = () => {
     <>
       <StatusBar barStyle="light-content" />
       <SafeAreaView style={{flex: 1, backgroundColor: theme.dark.background}}>
-        <View style={{marginTop: 25}}>
-          <Text style={{color: theme.dark.text, fontWeight: 'bold', fontSize: 30, marginLeft: 10}}>WS Sandbox</Text>
+        <View style={{marginTop: 25, marginBottom: 10}}>
+          <Text style={{color: theme.dark.text, fontWeight: 'bold', fontSize: 35, marginLeft: 10}}>WS Sandbox</Text>
         </View>
-        <View style={{flex:1}}>
+        {!enabled && <Button title="Connect" onPress={()=>setWS(null)}/>}
+        <View style={{flex:1, marginTop: 10}}>
           <SectionList
             sections={DATA}
             keyExtractor={(item, index) => item + index}
             renderItem={({ item }) => <Item title={item} />}
             renderSectionHeader={({ section: { title } }) => (
-              <Text style={{color: theme.dark.text, fontSize: 32, marginTop: 15}}>{title}</Text>
+              <Text style={{color: theme.dark.text, fontSize: 32, margin: 10, marginBottom:0}}>{title}</Text>
             )}
           />
         </View>
 
-        {toggle && <Button title="Send Response" onPress={handle_message}/>}
+        {enabled && <Button title="Send Response" onPress={handle_message}/>}
       </SafeAreaView>
     </>
   );
