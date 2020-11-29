@@ -49,6 +49,10 @@ class Websocket {
     send(data) {
         this.conn.send(data);
     }
+
+    close() {
+        this.conn.close();
+    }
 }
 
 export default Websocket;

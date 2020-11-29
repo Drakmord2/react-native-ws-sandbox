@@ -1,10 +1,10 @@
 // Action Types
 export const Types = {
-    SET_BOARD: 'conn/SET_BOARD',
-    CLEAR: 'conn/CLEAR',
+    SET_BOARD: 'board/SET_BOARD',
+    CLEAR: 'board/CLEAR',
 };
 
-const INITIAL_STATE = {
+export const INITIAL_STATE = {
     board: [
         {
             tile_id: 0,

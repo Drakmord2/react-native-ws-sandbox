@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import {View, Text} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, Alert} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {Creators} from '../store/ducks/board';
 import {Card, CardItem, Body} from 'native-base';
@@ -13,7 +13,9 @@ import {Grid, Row} from 'react-native-easy-grid';
  Component to render TicTacToe board
 */
 const TicTacToe = ({connection}) => {
+    const [alertcount, setCount] = useState(0);
     const received = useSelector(state => state.conn.received);
+    const connected = useSelector(state => state.conn.connected);
     const board_state = useSelector(state => state.board.board);
     const dispatch = useDispatch();
 
@@ -21,9 +23,33 @@ const TicTacToe = ({connection}) => {
         try {
             if (Array.isArray(received) && board_state !== received) {
                 dispatch(Creators.setBoard(received));
+                setCount(0);
+            }
+
+            if (received.type === 'game' && alertcount === 0) {
+                Alert.alert('Game Over', received.message, [
+                    {
+                        text: 'New Game',
+                        onPress: () => dispatch(Creators.clear()),
+                    },
+                    {
+                        text: 'Quit',
+                        onPress: () => connection.close(),
+                    },
+                ]);
+
+                setCount(1);
             }
         } catch (err) {}
-    }, [board_state, received, dispatch]);
+    }, [board_state, received]);
+
+    useEffect(() => {
+        try {
+            if (connected) {
+                dispatch(Creators.clear());
+            }
+        } catch (err) {}
+    }, [connected]);
 
     const handle_move = tile => {
         let data = JSON.stringify({
