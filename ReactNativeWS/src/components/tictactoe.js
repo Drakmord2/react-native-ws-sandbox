@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, Text} from 'react-native';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
+import {Creators} from '../store/ducks/board';
 import {Card, CardItem, Body} from 'native-base';
-import theme from '../config/style';
 import {
     widthPercentageToDP as wp,
     heightPercentageToDP as hp,
@@ -12,57 +12,27 @@ import {Grid, Row} from 'react-native-easy-grid';
 /*
  Component to render TicTacToe board
 */
-const ConnectionConsole = ({connection}) => {
+const TicTacToe = ({connection}) => {
     const received = useSelector(state => state.conn.received);
+    const board_state = useSelector(state => state.board.board);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        try {
+            if (Array.isArray(received) && board_state !== received) {
+                dispatch(Creators.setBoard(received));
+            }
+        } catch (err) {}
+    }, [board_state, received, dispatch]);
 
     const handle_move = tile => {
         let data = JSON.stringify({
-            type: 'message',
-            message: JSON.stringify(tile),
-            date: Date.now(),
+            type: 'move',
+            move: JSON.stringify(tile),
         });
 
         connection.send(data);
     };
-
-    let board_state = [
-        {
-            tile_id: 0,
-            value: 'X',
-        },
-        {
-            tile_id: 1,
-            value: '',
-        },
-        {
-            tile_id: 2,
-            value: 'O',
-        },
-        {
-            tile_id: 3,
-            value: 'X',
-        },
-        {
-            tile_id: 4,
-            value: 'O',
-        },
-        {
-            tile_id: 5,
-            value: '',
-        },
-        {
-            tile_id: 6,
-            value: 'O',
-        },
-        {
-            tile_id: 7,
-            value: 'X',
-        },
-        {
-            tile_id: 8,
-            value: '',
-        },
-    ];
 
     const render_tiles = () => {
         let cards = [];
@@ -135,4 +105,4 @@ const ConnectionConsole = ({connection}) => {
     return <View style={{flex: 1, marginTop: 10}}>{render_tiles()}</View>;
 };
 
-export default ConnectionConsole;
+export default TicTacToe;

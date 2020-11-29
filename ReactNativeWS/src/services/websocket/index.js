@@ -28,7 +28,7 @@ class Websocket {
         };
 
         this.conn.onmessage = e => {
-            dispatch(Creators.setReceived(e.data));
+            dispatch(Creators.setReceived(JSON.parse(e.data)));
         };
 
         this.conn.onerror = e => {
